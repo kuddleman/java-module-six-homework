@@ -71,11 +71,59 @@ public class CustomerInput extends Application {
         fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(primaryStage);
         parseFile(file);
+        statusText.setText("Success");
+        String countAllOrdersString = String.valueOf(Customer.getCountAllOrders());
+        resultText.setText(countAllOrdersString);
+        statusText.setVisible(true);
+        resultText.setVisible(true);
+        uploadButton.setDisable(true);
 
     }
 
     private void parseFile(File file) {
         // ??? YOUR CODE HERE
+        try {
+            ArrayList customerList = new ArrayList<Customer>();
+
+            Scanner fileScan = new Scanner(new FileInputStream(new File("GoodCustomerInputData.csv")));
+
+            while (fileScan.hasNext()) {
+
+                String oneLine = fileScan.nextLine();
+
+                Scanner lineScan = new Scanner(oneLine);
+                lineScan.useDelimiter(",");
+
+
+                    String id = lineScan.next();
+                    String hopeItsAnInteger = lineScan.next();
+                try {
+                    int numberOfOrders = Integer.parseInt(hopeItsAnInteger);
+
+                    if (id.contains("@")) {
+                        throw new ContainsBadCharacterException();
+                    }
+
+                    Customer customer = new Customer(id, numberOfOrders);
+                    customerList.add(customer);
+
+                } catch(InputMismatchException ex) {
+                    statusText.setVisible(true);
+                    String errorText = hopeItsAnInteger + " is not an integer.";
+                    statusText.setText(errorText);
+                } catch(ContainsBadCharacterException ex) {
+                    statusText.setVisible(true);
+                    String errorText = id + " contains a '@' character which is not allowed.";
+                    statusText.setText(errorText);
+                }
+
+            }
+            fileScan.close();
+        } catch(FileNotFoundException ex) {
+            System.out.println("Sorry, the file you requested was not found.");
+
+        }
+
     }
 
     public static void main(String[] args) {
